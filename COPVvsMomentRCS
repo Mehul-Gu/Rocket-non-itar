@@ -1,0 +1,31 @@
+%Center of Gravity over Flight
+time = ITAR
+p1 = ITAR
+p2 = ITAR
+p3 = ITAR
+ISP = ITAR;
+g = 9.81;
+i=0
+%output
+RCS_From_Nosecone = ITAR;
+CG_Nosecone = p1*(time.^2) + p2.*time + p3;
+Cg_From_RCS = (CG_Nosecone - RCS_From_Nosecone);
+COPV_Mass = ITAR;
+Mass_We_Can_Use = COPV_Mass - ITAR;
+for Moment = ITAR
+    i=i+1
+    Force = Moment./Cg_From_RCS;
+    Mass_Flow = Force/(ISP*g);
+    Total_Mass_Used = sum(Mass_Flow);
+    for j=ITAR
+        [val,j]=min(abs(Mass_We_Can_Use-Total_Mass_Used));
+        Real_COPV_Mass(i) = COPV_Mass(j);
+    end
+end
+Pressure = 15.761*Real_COPV_Mass.^2 + 466.41*Real_COPV_Mass + 249.37;
+Moment_Graph = ITAR
+figure
+plot(Moment_Graph, Pressure)
+xlabel('Moment')
+ylabel('Pressure')
+title('Moment from RCS thrusters vs Helium COPV pressure for 60s burn')
