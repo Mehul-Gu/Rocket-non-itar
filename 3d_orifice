@@ -1,0 +1,47 @@
+gamma = 1.4;
+R = 296.8;
+T = 300;
+Dorifice = [0.0025:0.00004:0.0086];
+Aorifice = pi.*((Dorifice./2).^2)
+Dpipe = 0.0127;
+Apipe = pi*((Dpipe/2)^2);
+gravityhead = 40;
+dws_rho = 2.5;
+g = 9.81;
+frictionfactor = 0.05;
+L = 40;
+Cd = 0.62
+dynamicvisc = (55*10^(-6))
+i=1
+mdot = [0.001:0.0001:0.01]
+
+[X, Y] = meshgrid(mdot, Dorifice)
+dPacrossorifice = (((X./dws_rho).^2).*dws_rho)./(2.*((pi.*(Y./2).^2).^2).*(Cd.^2))
+
+gravityheadstuff = dws_rho.*g.*gravityhead;
+rightmoststuff = (L.*((X.^2)./((dws_rho.^2).*(Apipe.^2)))./(2.*g.*Dpipe));
+frictionheadstuff = dws_rho.*g.*frictionfactor.*rightmoststuff;
+viscousheadstuff = (8.*dynamicvisc.*L.*(X./dws_rho))./(pi.*((Dpipe./2).^4));
+pipepressureloss = gravityheadstuff+frictionheadstuff+viscousheadstuff;
+
+dPacrossorifice = dPacrossorifice.*0.00014504;
+pipepressureloss = pipepressureloss.*0.00014504;
+convergenceupstreamP = dPacrossorifice+pipepressureloss
+
+Z = convergenceupstreamP;
+meshc(X, Y./0.0254, Z,'FaceColor','#FF0000')
+xlabel('Mass Flow Rate')
+ylabel('Orifice Size')
+zlabel('Upstream Pressure')
+hold on
+meshc(X, Y./0.0254, dPacrossorifice,'FaceColor','#00FF00')
+meshc(X, Y./0.0254, pipepressureloss,'FaceColor','#00FFFF')
+hold off
+
+figure
+plot(convergenceupstreamP, mdot)
+hold on
+plot(pipepressureloss, mdot)
+plot(dPacrossorifice, mdot)
+xlabel('Pressure Drop Across Pipe, Orifice, Upstream Pressure (psi)')
+ylabel('Maass Flow Rate')          
