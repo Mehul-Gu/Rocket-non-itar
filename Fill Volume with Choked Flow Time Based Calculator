@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Mar 24 19:39:27 2022
+Python Code
+@author: mgupta
+"""
+#Note - This tool is meant for filling a downstream volume under choked flow. 
+#If the outlet pressure is more than 0.5 of the upstream pressure than that part is wrong.
+
+import numpy as np
+import math
+import matplotlib.pyplot as plt
+
+#initializing nonsense - ignore
+i = 0
+k = 0
+n = 0
+j = 0
+newflowrate = 0
+Pressure = []
+timepressuresum = []
+pressuresumflowrate = []
+pressuresum = 0
+
+#Parameters to set
+Volume = 1;
+R = 287.058;
+Temperature = 298;
+time = np.arange(1, 154, 1)
+upstreampressurepsi = 200
+Dorifice = np.arange(0.00025, 0.00086, 0.000004)
+
+#calcs with the set parameters above
+Aorifice = math.pi*((Dorifice/2)**2)
+exponentialrightstuff = -((1.4+1)/(2*(1.4-1)))
+upstreampressure = 6894.76*upstreampressurepsi
+nonsenserightstuff = ((1.4+1)/2)
+rightstuffcombined = nonsenserightstuff**(exponentialrightstuff)
+flowrate = ((upstreampressure*Aorifice)/math.sqrt(Temperature))*(math.sqrt(1.4/R))*rightstuffcombined
+
+while i<len(flowrate):
+    newflowrate = flowrate[i]
+    timepressuresum = []
+    while n<len(time):
+        k=0
+        Pressure = []
+        pressuresum = 0
+        while k<=time[n]:
+            Pressure.append(newflowrate*R*Temperature*0.000145038)
+            pressuresum = pressuresum + Pressure[k]
+            k += 1
+        n += 1
+        timepressuresum.append(pressuresum/Volume)
+    i += 1
+    n=0
+    pressuresumflowrate.append(timepressuresum)
+
+#graphing part of the code
+data = np.array(pressuresumflowrate)
+x, y = np.meshgrid(Dorifice*39.3701, time)
+
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1, projection='3d')
+ax.plot_surface(x, y, data)
+ax.legend()
+
+ax.set_xlabel('$Diameter of Orifice (in)$', rotation=150)
+ax.set_ylabel('$Time (s)$')
+ax.set_zlabel(r'$Pressure (psi)$', rotation=60)
+ax.text2D(0.05, 0.95, f"Volume = {Volume}m^3", transform=ax.transAxes)
+ax.text2D(0.05, 0.92, f"Upstream Pressure = {upstreampressurepsi}psi", transform=ax.transAxes)
+plt.show()
+
