@@ -1,0 +1,42 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.fft import fft, ifft, fftfreq
+from scipy import signal
+from scipy.fft import fftshift
+
+#converting a dictionary into an array
+data_array = np.array(list(data.items()))
+
+#Grabbing relevant data from the array
+high_speed_data = data_array[:,1]
+high_speed_timestamp = data_array[:,0]
+length = len(high_speed_data)
+time = high_speed_timestamp[len(high_speed_data)-1] - high_speed_timestamp[0]
+time_spacing = time/length
+sampling_frequency = length/time
+
+#Doing the ffts
+yf = fft(high_speed_data)
+xf = fftfreq(length, 1/sampling_frequency)
+
+#Doing the plots
+plt.figure(1)
+plt.title('Original Signal')
+plt.ylabel('Signal')
+plt.xlabel('Time [sec]')
+plt.plot(high_speed_timestamp,high_speed_data)
+
+plt.figure(2)
+plt.title('True FFT values')
+plt.xlabel('Frequency [Hz]')
+plt.ylabel('Power')
+plt.ylim(0,1000)
+plt.xlim(0, 15000)
+plt.plot(xf,np.abs(yf))
+
+plt.figure(3)
+f, t, Sxx = signal.spectrogram(high_speed_data, sampling_frequency)
+plt.title('Spectrogram')
+plt.ylabel('Frequency [Hz]')
+plt.xlabel('Time [sec]')
+plt.pcolormesh(t, fftshift(f), fftshift(Sxx, axes=0), shading='gouraud')
