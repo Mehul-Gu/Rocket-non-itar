@@ -1,28 +1,49 @@
+from cmath import pi, sqrt
 from CoolProp.CoolProp import PropsSI
 import numpy as np
 import matplotlib.pyplot as plt
 
 class flowrate:
-    def __init__(self, Cd, Throat_Diameter, Upstream_Diameter, Upstream_Pressure, Downstream_Pressure, Upstream_Temperature, Fluid):
+    def __init__(self, Cd, Throat_Diameter, Upstream_Diameter, Upstream_Pressure, Downstream_Pressure, Upstream_Temperature, Fluid, Calc_Type):
         self.Cd = Cd
         self.Throat_Diameter = Throat_Diameter
         self.Upstream_Diameter = Upstream_Diameter
         self.Upstream_Pressure = Upstream_Pressure
         self.Downstream_Pressure = Downstream_Pressure
-        self_Upstream_Temperature = Upstream_Temperature
+        self.Upstream_Temperature = Upstream_Temperature
         self.Fluid = Fluid
-    
+        self.Beta = self.Throat_Diameter/self.Upstream_Diameter
+        self.C = self.Cd/(sqrt(1-(self.Beta^4))) #based on the wikipedia definition
+        self.Throat_Area = pi*((Throat_Diameter/2)^2)
+        self.Upstream_Area = pi*((Upstream_Diameter/2)^2)
+        self.Upstream_enthalpy = PropsSI('H', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
+        self.Upstream_density = PropsSI('D', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
+        self.Upstream_entropy = PropsSI('S', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
+        self.Cp = PropsSI('CPMASS', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
+        self.Cv = PropsSI('CVMASS', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
+        self.gamma = self.Cp/self.Cv
+
     def shrink_factor(self):
         shrink = 1
         return shrink
 
-    def upstream_thermo(self):
-        Upstream_enthalpy = PropsSI('H', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
-        Upstream_density = PropsSI('D', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
-        Upstream_entropy = PropsSI('S', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
-        return Upstream_enthalpy, Upstream_density, Upstream_entropy
-    
-    def optimization(self):
-        if self.Downstream_Pressure > (0.6 * self.Upstream_Pressure): #unchoked flow
+    def area_ratio(self):
+        Throat_Area_Complex = self.Throat_Diameter
+        Area_Number = Throat_Area_Complex
+        return Area_Number
+
+    def critical_pressure(self):
+        critical_pressure = self.Upstream_Pressure * ((2/(self.gamma+1))^(self.gamma/(self.gamma-1)))
+        return critical_pressure
+
+    def complex_flowrate(self):
+        if self.Downstream_Pressure > self.critical_pressure(): #unchoked flow
             Throat_Pressure = self.Downstream_Pressure
-            Throat_enthalpy = PropsSI('H', 'P', Throat_Pressure, 'T', Upstream_entropy, self.Fluid)
+            Throat_enthalpy = PropsSI('H', 'P', Throat_Pressure, 'T', self.Upstream_entropy, self.Fluid)
+
+    def flowrate(self):
+        if self.Downstream_Pressure > self.critical_pressure(): #unchoked flow
+            flowrate = self.C * self.Throat_Area * sqrt(2 * self.Upstream_Pressure * self.Upstream_density * (self.gamma/(self.gamma-1))*(((self.Downstream_Pressure/self.Upstream_Pressure)^(2/self.gamma))-((self.Downstream_Pressure/self.Upstream_Pressure)^((self.gamma+1)/self.gamma))))
+        else:
+            flowrate = self.C * self.Throat_Area * sqrt(self.gamma * self.Upstream_Pressure * self.Upstream_density * ((2/(self.gamma+1))^((self.gamma+1)/(self.gamma-1))))
+        return flowrate
