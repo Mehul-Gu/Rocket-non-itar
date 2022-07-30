@@ -13,9 +13,9 @@ class flowrate:
         self.Upstream_Temperature = Upstream_Temperature
         self.Fluid = Fluid
         self.Beta = self.Throat_Diameter/self.Upstream_Diameter
-        self.C = self.Cd/(sqrt(1-(self.Beta^4))) #based on the wikipedia definition
-        self.Throat_Area = pi*((Throat_Diameter/2)^2)
-        self.Upstream_Area = pi*((Upstream_Diameter/2)^2)
+        self.C = self.Cd/(sqrt(1-(self.Beta**4))) #based on the wikipedia definition
+        self.Throat_Area = pi*((Throat_Diameter/2)**2)
+        self.Upstream_Area = pi*((Upstream_Diameter/2)**2)
         self.Upstream_enthalpy = PropsSI('H', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
         self.Upstream_density = PropsSI('D', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
         self.Upstream_entropy = PropsSI('S', 'P', self.Upstream_Pressure, 'T', self.Upstream_Temperature, self.Fluid)
@@ -33,7 +33,7 @@ class flowrate:
         return Area_Number
 
     def critical_pressure(self):
-        critical_pressure = self.Upstream_Pressure * ((2/(self.gamma+1))^(self.gamma/(self.gamma-1)))
+        critical_pressure = self.Upstream_Pressure * ((2/(self.gamma+1))**(self.gamma/(self.gamma-1)))
         return critical_pressure
 
     def complex_flowrate(self):
@@ -43,7 +43,7 @@ class flowrate:
 
     def flowrate(self):
         if self.Downstream_Pressure > self.critical_pressure(): #unchoked flow
-            flowrate = self.C * self.Throat_Area * sqrt(2 * self.Upstream_Pressure * self.Upstream_density * (self.gamma/(self.gamma-1))*(((self.Downstream_Pressure/self.Upstream_Pressure)^(2/self.gamma))-((self.Downstream_Pressure/self.Upstream_Pressure)^((self.gamma+1)/self.gamma))))
+            flowrate = self.C * self.Throat_Area * sqrt(2 * self.Upstream_Pressure * self.Upstream_density * (self.gamma/(self.gamma-1))*(((self.Downstream_Pressure/self.Upstream_Pressure)**(2/self.gamma))-((self.Downstream_Pressure/self.Upstream_Pressure)**((self.gamma+1)/self.gamma))))
         else:
-            flowrate = self.C * self.Throat_Area * sqrt(self.gamma * self.Upstream_Pressure * self.Upstream_density * ((2/(self.gamma+1))^((self.gamma+1)/(self.gamma-1))))
+            flowrate = self.C * self.Throat_Area * sqrt(self.gamma * self.Upstream_Pressure * self.Upstream_density * ((2/(self.gamma+1))**((self.gamma+1)/(self.gamma-1))))
         return flowrate
