@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class flowrate:
-    def __init__(self, Cd, Throat_Diameter, Upstream_Diameter, Upstream_Pressure, Downstream_Pressure, Upstream_Temperature, Fluid, Calc_Type):
+    def __init__(self, Cd, Throat_Diameter, Upstream_Diameter, Upstream_Pressure, Downstream_Pressure, Upstream_Temperature, Fluid):
         self.Cd = Cd
         self.Throat_Diameter = Throat_Diameter
         self.Upstream_Diameter = Upstream_Diameter
