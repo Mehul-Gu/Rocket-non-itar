@@ -47,3 +47,6 @@ class flowrate:
         else:
             flowrate = self.C * self.Throat_Area * sqrt(self.gamma * self.Upstream_Pressure * self.Upstream_density * ((2/(self.gamma+1))**((self.gamma+1)/(self.gamma-1))))
         return flowrate
+
+test1 = flowrate(0.62, 0.00254, 0.0127, 2760000, 1000000, 300, "Water")
+print(test1.flowrate())
